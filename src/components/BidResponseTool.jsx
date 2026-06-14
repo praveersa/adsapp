@@ -2,24 +2,11 @@ import { useState } from 'react'
 import { parseBidResponse } from '../utils/bidParser'
 import { generateAdm600 } from '../utils/admGenerator'
 import { resolveAdvertiserContext } from '../utils/queryFromContent'
+import sampleBid from '../data/sampleBid.json'
 
-const SAMPLE_BID = `{
-  "seatbid": [
-    {
-      "bid": [
-        {
-          "adomain": ["pluto.tv"],
-          "adm": "<iframe src=\\"https://example.com/creative\\" width=\\"300\\" height=\\"250\\" frameborder=\\"0\\" scrolling=\\"no\\"></iframe>",
-          "w": 300,
-          "h": 250
-        }
-      ],
-      "seat": "200"
-    }
-  ],
-  "cur": "USD",
-  "id": "sample-bid"
-}`
+// Default bid response shown in the editor: a real Vrbo (Expedia Group) DV3
+// display creative (crid 716013088, adomain vrbo.com).
+const SAMPLE_BID = JSON.stringify(sampleBid, null, 2)
 
 function BidResponseTool() {
   const [bidJson, setBidJson] = useState(SAMPLE_BID)

@@ -80,6 +80,31 @@ const CREATIVES = {
       'Where to buy: pick up the 2 for $4 deal at participating 7-Eleven stores while supplies last.',
     ],
   },
+  '716013088': {
+    id: '716013088',
+    advertiserDomain: 'vrbo.com',
+    advertiserName: 'Vrbo',
+    productLabel: 'VrboCare',
+    metadata: {
+      campaignGoal:
+        'Drive Vrbo bookings by promoting VrboCare — the free traveler-protection guarantee that gives peace of mind.',
+      creativeContent:
+        'Display creative with the headline "Help is always ready with VrboCare" and a phone showing "Peace of mind with VrboCare", plus a "Book now" call to action.',
+      textMessage:
+        'Help is always ready with VrboCare — every Vrbo booking is automatically backed by free traveler protection, so you can book with peace of mind.',
+      clickUrl: 'https://www.vrbo.com/',
+      advertiserInfo:
+        'Vrbo (Vacation Rentals by Owner) is an Expedia Group brand for booking entire vacation homes. VrboCare is its free guarantee that protects every Vrbo booking.',
+    },
+    knowledge: [
+      'VrboCare is the protection that comes free with every booking made on Vrbo — there is no extra cost and nothing to opt into.',
+      'It safeguards travelers against host-initiated cancellations, check-in issues, fraud, and significant property misrepresentation.',
+      'If a covered issue happens, Vrbo agents help with rebooking into comparable accommodations or with refunds, plus arranging lodging when needed.',
+      'The rebooking window was expanded from 30 to 90 days before check-in, giving travelers more time and flexibility if issues arise.',
+      '24/7 live customer support is available before and during the trip; protection applies when you book, pay, and communicate through Vrbo.',
+      'VrboCare is the new name for Vrbo\'s longstanding Book with Confidence Guarantee, now with broader coverage.',
+    ],
+  },
 }
 
 function synthesizeCreative(creativeId, advertiserDomain, clickUrl) {

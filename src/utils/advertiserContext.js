@@ -54,6 +54,61 @@ const CREATIVE_PROFILES = {
       },
     ],
   },
+  '716013088': {
+    name: 'Vrbo',
+    productLabel: 'VrboCare',
+    locked: true,
+    queries: [
+      {
+        question: 'What is VrboCare?',
+        answer: [
+          {
+            title: 'Peace of mind, free',
+            text: 'VrboCare is **free traveler protection** included with **every Vrbo booking** — there is **no extra cost** and nothing to opt into.',
+          },
+          {
+            title: 'Help is always ready',
+            text: 'If something goes wrong before or during your trip, Vrbo is **always ready to help** so you can book with peace of mind.',
+          },
+        ],
+      },
+      {
+        question: 'What does VrboCare cover?',
+        answer: [
+          {
+            title: 'Covered issues',
+            text: 'VrboCare safeguards you against **host-initiated cancellations**, **check-in issues**, **fraud**, and **significant property misrepresentation**.',
+          },
+          {
+            title: 'Rebooking & refunds',
+            text: 'If a covered issue happens, Vrbo helps with **rebooking** into comparable stays or with **refunds**, and can arrange lodging when needed.',
+          },
+        ],
+      },
+      {
+        question: 'How long am I protected?',
+        answer: [
+          {
+            title: '90-day rebooking window',
+            text: 'Vrbo expanded the rebooking window from 30 to **90 days before check-in**, giving you more time and flexibility if issues arise.',
+          },
+          {
+            title: '24/7 support',
+            text: 'You get **24/7 live support** before and during your trip when you book, pay, and message through Vrbo.',
+          },
+        ],
+      },
+      {
+        question: 'Does VrboCare cost extra?',
+        answer: [
+          {
+            title: 'Always included',
+            text: 'No — VrboCare is **automatically included free** with every booking made on the Vrbo site or app.',
+          },
+        ],
+      },
+    ],
+  },
 }
 
 const DOMAIN_PROFILES = {
