@@ -1,3 +1,9 @@
+/**
+ * Server-side click-through URL extraction from ad markup (ADM).
+ * Mirrors src/utils/creativeParser.js so the backend can derive the real click
+ * destination (ptcurl / clk tracker) instead of guessing https://{domain}.
+ */
+
 const TRACKING_HOST_PATTERNS = [
   /bidswitch/i,
   /doubleclick/i,
@@ -36,11 +42,8 @@ function normalizeUrl(rawUrl) {
   return null
 }
 
-// Unescape a URL value pulled from markup: turn the HTML/JS escaping that the
-// ad markup adds (&amp;, &#38;, escaped slashes) back into the real URL. We do
-// NOT percent-decode the value — the nested click-redirect target (e.g. the
-// `adurl=` param) is intentionally percent-encoded and must stay that way.
-// Returns the unescaped string if it is a valid http(s) URL, else null.
+// Unescape HTML/JS escaping (&amp;, &#38;, escaped slashes) without
+// percent-decoding — the nested redirect target (adurl=) must stay encoded.
 function decodeUrlValue(rawUrl) {
   if (!rawUrl) {
     return null
@@ -65,8 +68,7 @@ function decodeUrlValue(rawUrl) {
   return null
 }
 
-// Pull the click destination from a `ptcurl:'...'` (or "ptcurl":"...") config
-// value, as used by EngageClick / programmatic inline creatives.
+// Pull the click destination from a `ptcurl:'...'` config value.
 function extractPtcUrl(adm) {
   const pattern = /ptcurl['"]?\s*[:=]\s*['"]([^'"]+)['"]/i
   const match = adm.match(pattern)
@@ -139,33 +141,42 @@ function collectUrlsFromMarkup(adm) {
   return [...urls]
 }
 
+/**
+ * Extract the click-through URL from ad markup, in priority order:
+ *   1) explicit `ptcurl` config value
+ *   2) a click tracker/redirect URL (contains "clk")
+ *   3) advertiser/landing URL scanned from the markup
+ * Returns null if the markup is empty or nothing usable is found.
+ */
 export function extractClickThroughUrl(adm, adomain) {
-  // 1) Explicit click destination passed via a `ptcurl` config value.
+  if (!adm || typeof adm !== 'string') {
+    return null
+  }
+
   const ptcUrl = extractPtcUrl(adm)
   if (ptcUrl) {
     return ptcUrl
   }
 
-  // 2) A click tracker/redirect URL (contains "clk") — for programmatic ads the
-  //    click tracker is the intended click-through (it redirects to the advertiser).
   const clkUrl = extractClkUrl(adm)
   if (clkUrl) {
     return clkUrl
   }
 
-  // 3) Fall back to scanning markup for the advertiser/landing URL.
   const candidates = collectUrlsFromMarkup(adm).filter((url) => !isTrackingUrl(url))
 
-  const adomainMatch = candidates.find((url) => {
-    try {
-      return domainMatchesAdomain(new URL(url).hostname, adomain)
-    } catch {
-      return false
-    }
-  })
+  if (adomain) {
+    const adomainMatch = candidates.find((url) => {
+      try {
+        return domainMatchesAdomain(new URL(url).hostname, adomain)
+      } catch {
+        return false
+      }
+    })
 
-  if (adomainMatch) {
-    return adomainMatch
+    if (adomainMatch) {
+      return adomainMatch
+    }
   }
 
   const nonAdServer = candidates.find((url) => {
@@ -177,9 +188,5 @@ export function extractClickThroughUrl(adm, adomain) {
     }
   })
 
-  if (nonAdServer) {
-    return nonAdServer
-  }
-
-  return `https://${adomain.replace(/^www\./, '')}`
+  return nonAdServer || null
 }

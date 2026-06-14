@@ -14,7 +14,7 @@ const TABS = [
 function AppNav({ currentPath }) {
   return (
     <header className="app-nav">
-      <p className="app-nav-brand">Programmatic ad slots</p>
+      <p className="app-nav-brand">Programmatic AI Chatbot ad slots</p>
       <nav className="app-nav-tabs" aria-label="Main sections">
         {TABS.map((tab) => {
           const isActive = tab.paths.includes(currentPath)

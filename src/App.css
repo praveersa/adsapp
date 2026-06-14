@@ -186,8 +186,41 @@
 }
 
 .bid-tool-actions button:disabled {
-  opacity: 0.6;
+  opacity: 0.85;
   cursor: wait;
+}
+
+.btn-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: btn-spin 0.7s linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-spinner {
+    animation-duration: 1.4s;
+  }
+}
+
+.bid-tool-status {
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 12px;
 }
 
 .bid-tool-actions button.secondary {
@@ -326,6 +359,9 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
+  /* #root sets text-align: center globally; keep the kicker + heading left-aligned
+     so their left edges line up. */
+  text-align: left;
 }
 
 .chat-header > div {
@@ -407,8 +443,9 @@
 .message.assistant {
   align-self: flex-start;
   color: #1f2937;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #ffffff 0%, #f3f6ff 100%);
+  border: 1px solid #e2e8f7;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
 }
 
 .messages .message.assistant:first-child {
@@ -417,6 +454,7 @@
   color: #94a3b8;
   background: transparent;
   border: 0;
+  box-shadow: none;
   font-size: 10px;
   font-style: italic;
 }
@@ -427,8 +465,125 @@
   background: #2563eb;
 }
 
+.message--typing {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 12px;
+}
+
+.typing-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.typing-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94a3b8;
+  opacity: 0.4;
+  animation: typing-bounce 1.2s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: 0.18s;
+}
+
+.typing-dots span:nth-child(3) {
+  animation-delay: 0.36s;
+}
+
+@keyframes typing-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typing-dots span {
+    animation: typing-fade 1.2s infinite ease-in-out;
+  }
+  @keyframes typing-fade {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+}
+
+.message a {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.message.user a {
+  color: #ffffff;
+}
+
+/* Call-to-action link inside an assistant bubble: rendered as an inline pill
+   button so the link is obviously tappable while staying in the sentence flow. */
+.message a.chat-cta {
+  display: inline-block;
+  margin: 1px 0;
+  padding: 3px 9px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-decoration: none;
+  vertical-align: middle;
+  box-shadow: 0 2px 5px rgba(220, 38, 38, 0.3);
+  transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.message a.chat-cta:hover,
+.message a.chat-cta:focus-visible {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.42);
+  outline: none;
+}
+
+.message a.chat-cta:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(220, 38, 38, 0.3);
+}
+
+.chat-form input:disabled,
+.chat-form button:disabled,
+.compact-chat-form input:disabled,
+.compact-chat-form button:disabled,
+.quick-queries button:disabled,
+.compact-quick-queries button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .message p {
   margin: 0;
+}
+
+.message p + p {
+  margin-top: 6px;
+}
+
+.message .chat-line {
+  display: inline;
 }
 
 .message ul {
@@ -450,6 +605,18 @@
 
 .message span {
   color: #4b5563;
+}
+
+/* LLM-highlighted key terms (**bold** in the reply). */
+.message .chat-highlight {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.message.assistant .chat-highlight {
+  background: rgba(37, 99, 235, 0.1);
+  padding: 0 3px;
+  border-radius: 4px;
 }
 
 .chat-form {
@@ -546,7 +713,10 @@
 }
 
 .compact-answer {
+  display: flex;
   flex: 1 1 auto;
+  flex-direction: column;
+  gap: 6px;
   min-height: 0;
   margin-top: 7px;
   overflow-y: auto;
@@ -554,6 +724,12 @@
   font-size: 10px;
   line-height: 1.4;
   text-align: left;
+}
+
+.compact-answer .message {
+  font-size: 10px;
+  padding: 6px 8px;
+  border-radius: 10px;
 }
 
 .compact-answer ul {

@@ -35,8 +35,11 @@ function BidResponseTool() {
 
     try {
       const bid = parseBidResponse(bidJson)
-      const advertiserContext = await resolveAdvertiserContext(bid.adomain, bid.adm)
-      const adm = generateAdm600({ adm: bid.adm, context: advertiserContext })
+      const advertiserContext = await resolveAdvertiserContext(bid.adomain, bid.adm, bid.crid)
+      const adm = generateAdm600({
+        adm: bid.adm,
+        context: { ...advertiserContext, creativeId: bid.crid },
+      })
 
       setParsedBid(bid)
       setContext(advertiserContext)
@@ -78,7 +81,14 @@ function BidResponseTool() {
 
       <div className="bid-tool-actions">
         <button type="button" onClick={handleGenerate} disabled={loading}>
-          {loading ? 'Crawling landing page…' : 'Generate 300x600 ADM'}
+          {loading ? (
+            <span className="btn-loading">
+              <span className="btn-spinner" aria-hidden="true"></span>
+              Generating…
+            </span>
+          ) : (
+            'Generate 300x600 ADM'
+          )}
         </button>
         {outputAdm && (
           <button type="button" className="secondary" onClick={handleCopy}>
@@ -86,6 +96,12 @@ function BidResponseTool() {
           </button>
         )}
       </div>
+
+      {loading && (
+        <p className="bid-tool-status" aria-live="polite">
+          Resolving the click-through URL, researching the advertiser, and generating chat prompts…
+        </p>
+      )}
 
       {error && <p className="bid-tool-error">{error}</p>}
 
@@ -105,10 +121,6 @@ function BidResponseTool() {
             <a href={context.landingUrl} target="_blank" rel="noreferrer">
               {context.landingUrl}
             </a>
-          </p>
-          <p>
-            <strong>Query source:</strong>{' '}
-            {context.pageContent?.source === 'crawl' ? 'Landing page crawl' : 'Domain fallback'}
           </p>
           <p>
             <strong>Chat prompts:</strong> {context.queries.length}

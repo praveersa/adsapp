@@ -1,3 +1,61 @@
+// Product-specific profiles keyed by creative ID (crid). These take priority
+// over domain profiles so a single advertiser domain (e.g. pepsico.com) can map
+// to the exact advertised product instead of a generic brand homepage.
+const CREATIVE_PROFILES = {
+  '712960825': {
+    name: 'Pure Leaf',
+    productLabel: 'Pure Leaf Real Brewed Iced Tea',
+    // Curated; do not let a homepage crawl override these.
+    locked: true,
+    queries: [
+      {
+        question: 'How does Pure Leaf taste?',
+        answer: [
+          {
+            title: 'Real brewed taste',
+            text: 'Pure Leaf is **real brewed from real tea leaves** — never from powder or concentrate — for a smooth, authentic iced tea taste.',
+          },
+          {
+            title: 'Sweet Tea & Lemon',
+            text: '**Sweet Tea** is real brewed black tea with a classic, smooth sweetness, while **Lemon** adds natural lemon flavor for a crisp, refreshing finish.',
+          },
+        ],
+      },
+      {
+        question: 'Is Pure Leaf healthy?',
+        answer: [
+          {
+            title: 'Simple, real ingredients',
+            text: 'Pure Leaf is brewed from **real tea leaves** picked at their freshest, with **no powders or concentrate** — a refreshingly real iced tea.',
+          },
+          {
+            title: 'Check the label',
+            text: 'Sugar and calorie content vary by flavor (Sweet Tea vs Lemon). Check the **Nutrition Facts** on the bottle for exact values for your variety.',
+          },
+        ],
+      },
+      {
+        question: 'What flavors are available?',
+        answer: [
+          {
+            title: 'Two refreshing options',
+            text: 'This offer features **Sweet Tea** and **Lemon** — both **real brewed** black tea for a genuinely refreshing taste.',
+          },
+        ],
+      },
+      {
+        question: 'Where can I get the 2 for $4 deal?',
+        answer: [
+          {
+            title: 'At 7-Eleven',
+            text: 'Grab **2 bottles for $4** on Pure Leaf Real Brewed Iced Tea at participating **7-Eleven** stores while supplies last.',
+          },
+        ],
+      },
+    ],
+  },
+}
+
 const DOMAIN_PROFILES = {
   'pluto.tv': {
     name: 'Pluto TV',
@@ -8,11 +66,11 @@ const DOMAIN_PROFILES = {
         answer: [
           {
             title: 'Free streaming',
-            text: 'Pluto TV is a free ad-supported streaming service with live channels, movies, and shows across news, sports, entertainment, and more.',
+            text: 'Pluto TV is a **free** ad-supported streaming service with **live channels**, movies, and shows across news, sports, entertainment, and more.',
           },
           {
             title: 'No subscription',
-            text: 'Watch for free without a credit card or subscription. Just pick a channel and start streaming.',
+            text: 'Watch for free with **no credit card or subscription**. Just pick a channel and start streaming.',
           },
         ],
       },
@@ -21,7 +79,7 @@ const DOMAIN_PROFILES = {
         answer: [
           {
             title: 'Live channels',
-            text: 'Stream hundreds of live channels including movies, reality, crime, comedy, news, sports highlights, and curated themed channels.',
+            text: 'Stream **hundreds of live channels** including movies, reality, crime, comedy, news, sports highlights, and curated themed channels.',
           },
         ],
       },
@@ -30,7 +88,7 @@ const DOMAIN_PROFILES = {
         answer: [
           {
             title: 'Devices',
-            text: 'Pluto TV is available on smart TVs, mobile apps, web browsers, and popular streaming devices so you can watch at home or on the go.',
+            text: 'Pluto TV works on **smart TVs, mobile apps, web browsers, and popular streaming devices** so you can watch at home or on the go.',
           },
         ],
       },
@@ -45,15 +103,15 @@ const DOMAIN_PROFILES = {
         answer: [
           {
             title: 'Built-in Privacy Display',
-            text: "World's first Privacy Display on mobile with customizable viewability settings, Knox security, on-device protection, and Samsung Wallet.",
+            text: "**World's first Privacy Display** on mobile with customizable viewability settings, **Knox security**, on-device protection, and Samsung Wallet.",
           },
           {
             title: 'Agentic AI Experience',
-            text: 'Galaxy AI with Now Nudge, Finder on Home screen, and One UI 8.5 personalization in one tap.',
+            text: '**Galaxy AI** with Now Nudge, Finder on Home screen, and **One UI 8.5** personalization in one tap.',
           },
           {
             title: '200MP High Resolution Camera',
-            text: 'Bright night video, Photo Assist editing, and Creative Studio stickers from your photos.',
+            text: '**Bright night video**, Photo Assist editing, and Creative Studio stickers from your photos.',
           },
         ],
       },
@@ -62,7 +120,7 @@ const DOMAIN_PROFILES = {
         answer: [
           {
             title: 'Privacy control',
-            text: 'Privacy Display viewability settings keep everyday moments more private with Knox and Samsung Wallet support.',
+            text: '**Privacy Display** viewability settings keep everyday moments more private with **Knox** and Samsung Wallet support.',
           },
         ],
       },
@@ -71,7 +129,7 @@ const DOMAIN_PROFILES = {
         answer: [
           {
             title: 'Performance and charging',
-            text: 'Snapdragon 8 Elite Gen 5 for Galaxy, Vapor Chamber cooling, 60W wired and 25W wireless Super Fast charging.',
+            text: '**Snapdragon 8 Elite Gen 5** for Galaxy, Vapor Chamber cooling, **60W wired** and **25W wireless** Super Fast charging.',
           },
         ],
       },
@@ -84,8 +142,22 @@ function formatDomainName(domain) {
   return label.charAt(0).toUpperCase() + label.slice(1)
 }
 
-export function getAdvertiserContext(adomain) {
+export function getAdvertiserContext(adomain, creativeId) {
   const normalizedDomain = adomain.toLowerCase().replace(/^www\./, '')
+
+  // Creative-specific profile wins over the domain profile so we describe the
+  // exact advertised product (e.g. Pure Leaf) rather than the brand homepage.
+  const creativeProfile = creativeId ? CREATIVE_PROFILES[String(creativeId)] : undefined
+  if (creativeProfile) {
+    return {
+      domain: normalizedDomain,
+      name: creativeProfile.name,
+      productLabel: creativeProfile.productLabel,
+      queries: creativeProfile.queries,
+      locked: Boolean(creativeProfile.locked),
+    }
+  }
+
   const profile = DOMAIN_PROFILES[normalizedDomain]
 
   if (profile) {
@@ -94,6 +166,7 @@ export function getAdvertiserContext(adomain) {
       name: profile.name,
       productLabel: profile.productLabel,
       queries: profile.queries,
+      locked: Boolean(profile.locked),
     }
   }
 

@@ -1,0 +1,11 @@
+{
+  "name": "adsapp-server",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Backend chat + query-generator API for the programmatic AI chatbot ad slots.",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  }
+}
