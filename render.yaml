@@ -1,0 +1,38 @@
+# Render Blueprint: single Web Service that serves BOTH the built React
+# frontend (Vite dist/) and the Node chat/query API.
+#
+# Deploy: push to GitHub, then in Render: New + > Blueprint, point at this repo.
+# Set the secret env vars (LLM_API_KEY, etc.) in the Render dashboard.
+services:
+  - type: web
+    name: adsapp
+    runtime: node
+    plan: free
+    # Build the frontend (vite build -> dist/) and install backend deps.
+    buildCommand: npm install && npm run build:all
+    # Start the Node server, which serves dist/ + the /api endpoints.
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # The LLM key is secret: set it in the Render dashboard, not in git.
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_BASE_URL
+        value: https://api.fastrouter.ai/api/v1
+      - key: LLM_MODEL
+        value: ADSAppModelNano
+      - key: MAX_CHATS
+        value: "5"
+      # Optional: timeouts (ms) for LLM + web-research calls.
+      - key: LLM_TIMEOUT_MS
+        value: "8000"
+      - key: RESEARCH_TIMEOUT_MS
+        value: "7000"
+      # The generated ADM runs on third-party pages and needs an ABSOLUTE URL to
+      # reach this backend. After the first deploy, set this to your service URL,
+      # e.g. https://adsapp.onrender.com  (then redeploy so the build picks it up).
+      - key: VITE_PUBLIC_API_BASE_URL
+        sync: false

@@ -1,4 +1,8 @@
-const BASE_URL = '/api'
+// Same-origin by default ('/api'): in production the Node server serves both
+// the API and the built frontend. Override with VITE_API_BASE_URL at build time
+// if the backend lives on a different origin.
+const RAW_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
+const BASE_URL = RAW_BASE.replace(/\/+$/, '')
 
 export async function fetchSuggestedQueries({ creativeId, advertiserDomain, clickUrl, adm }) {
   const response = await fetch(`${BASE_URL}/queries`, {

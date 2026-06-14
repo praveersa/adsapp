@@ -5,6 +5,7 @@ import { getSession, getCachedQueries, setCachedQueries } from './store.js'
 import { generateQueries, generateReply } from './generator.js'
 import { fallbackAnswer } from './context.js'
 import { extractClickThroughUrl } from './creativeParser.js'
+import { serveStatic } from './static.js'
 
 function send(res, status, body) {
   res.writeHead(status, {
@@ -151,6 +152,20 @@ const server = createServer(async (req, res) => {
         clickUrl: creative.metadata.clickUrl,
         textMessage: creative.metadata.textMessage,
       })
+    }
+
+    // API namespace: anything unmatched under /api is a real 404.
+    if (path.startsWith('/api/')) {
+      return send(res, 404, { error: 'Not found' })
+    }
+
+    // Otherwise, serve the built frontend (production single-service deploy).
+    // In dev this dist/ won't exist and Vite serves the app instead.
+    if (req.method === 'GET' || req.method === 'HEAD') {
+      const handled = await serveStatic(req, res, path)
+      if (handled) {
+        return
+      }
     }
 
     return send(res, 404, { error: 'Not found' })

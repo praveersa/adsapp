@@ -3,9 +3,13 @@ const OUTPUT_HEIGHT = 600
 const CREATIVE_HEIGHT = 250
 const CHAT_HEIGHT = OUTPUT_HEIGHT - CREATIVE_HEIGHT
 
-// Backend chat API the generated ad talks to for live LLM replies. Override per
-// environment; when unreachable the ad falls back to the bundled static answers.
-const DEFAULT_CHAT_API_BASE_URL = 'http://localhost:3001'
+// Backend chat API the generated ad talks to for live LLM replies. The ad runs
+// on third-party publisher pages, so this MUST be an absolute, public URL (it
+// can't use a same-origin path). Set VITE_PUBLIC_API_BASE_URL at build time to
+// your deployed backend (e.g. https://your-app.onrender.com). Falls back to
+// localhost for local dev. When unreachable the ad uses bundled static answers.
+const DEFAULT_CHAT_API_BASE_URL =
+  import.meta.env.VITE_PUBLIC_API_BASE_URL || 'http://localhost:3001'
 
 function escapeHtml(value) {
   return String(value)
